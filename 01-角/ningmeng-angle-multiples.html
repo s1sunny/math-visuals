@@ -1,0 +1,218 @@
+<!DOCTYPE html>
+<!--@visual
+title: 角的倍数关系
+topic: 角
+grade: 小学四年级
+child: 柠檬
+keywords: 平角,倍数,角,180度
+created: 2026-10-31
+-->
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<title>平角180° · 角的倍数关系（修复版）</title>
+<style>
+  body {
+    font-family: "微软雅黑", sans-serif;
+    background: #f4faff;
+    margin: 0;
+    padding: 20px;
+    color: #333;
+  }
+  h1 {
+    text-align: center;
+    color: #1d3557;
+  }
+  .panel {
+    display: flex;
+    justify-content: center;
+    gap: 30px;
+    flex-wrap: wrap;
+  }
+  .card {
+    background: #fff;
+    border-radius: 16px;
+    padding: 20px;
+    box-shadow: 0 4px 12px rgba(0,0,0,.1);
+    width: 520px;
+  }
+  svg {
+    width: 100%;
+    height: auto;
+  }
+  label {
+    font-size: 18px;
+    font-weight: bold;
+  }
+  input {
+    width: 60px;
+    font-size: 18px;
+    text-align: center;
+    border: 2px solid #457b9d;
+    border-radius: 8px;
+    padding: 4px;
+  }
+  button {
+    background: #1d3557;
+    color: #fff;
+    border: none;
+    padding: 8px 16px;
+    border-radius: 8px;
+    font-size: 16px;
+    cursor: pointer;
+    margin-top: 10px;
+  }
+  .result {
+    margin-top: 15px;
+    font-size: 20px;
+    background: #d8f3dc;
+    padding: 12px;
+    border-radius: 10px;
+  }
+  .big {
+    font-size: 28px;
+    font-weight: bold;
+    color: #e63946;
+  }
+  .step {
+    font-size: 18px;
+    line-height: 1.8;
+  }
+</style>
+</head>
+<body>
+
+<h1>📐 平角180° · 角的倍数关系</h1>
+
+<div class="panel">
+  <div class="card">
+    <div>
+      <label>角2 是 角1 的</label>
+      <input id="mult" type="number" value="4" min="2" max="10" onchange="calc()">
+      <label>倍</label>
+    </div>
+
+    <div id="svgBox" style="margin-top:20px;"></div>
+
+    <button onclick="calc()">▶ 重新计算</button>
+
+    <div class="result" id="out"></div>
+  </div>
+
+  <div class="card">
+    <h3>🧠 解题思路</h3>
+    <div class="step" id="steps"></div>
+  </div>
+</div>
+
+<script>
+function calc() {
+  const N = parseInt(document.getElementById("mult").value) || 4;
+
+  const total = 180;
+  const a1 = total / (N + 1);
+  const a2 = a1 * N;
+
+  document.getElementById("out").innerHTML = `
+    角1 = <b>${a1.toFixed(1)}°</b><br>
+    角2 = <span class="big">${a2.toFixed(1)}°</span>
+  `;
+
+  document.getElementById("steps").innerHTML = `
+    ① 把 <b>角1</b> 看成 <b>1份</b><br>
+    ② 角2 是角1的 <b>${N}倍</b> → <b>${N}份</b><br>
+    ③ 一共是 <b>${N + 1}份</b><br>
+    ④ 平角 = 180°<br>
+    ⑤ 1份 = 180° ÷ ${N + 1} = <b>${a1.toFixed(1)}°</b><br>
+    ⑥ 角2 = ${a1.toFixed(1)}° × ${N} = <b>${a2.toFixed(1)}°</b>
+  `;
+
+  draw(N, a1, a2);
+}
+
+function draw(N, a1, a2) {
+  const W = 500, H = 260;
+  const cx = W / 2;       // 顶点在正中间
+  const cy = H - 60;
+  const r = 140;
+
+  let svg = `<svg viewBox="0 0 ${W} ${H}">
+    <!-- 平角线段 -->
+    <line x1="20" y1="${cy}" x2="${W - 20}" y2="${cy}" stroke="#333" stroke-width="3"/>
+    <circle cx="${cx}" cy="${cy}" r="6" fill="#000"/>
+  `;
+
+  // ===== 角1（右侧，橙色）=====
+  // 从 0°（向右）到 a1°
+  const a1StartRad = 0;
+  const a1EndRad = a1 * Math.PI / 180;
+
+  const x1Start = cx + r * Math.cos(a1StartRad);
+  const y1Start = cy - r * Math.sin(a1StartRad);
+  const x1End = cx + r * Math.cos(a1EndRad);
+  const y1End = cy - r * Math.sin(a1EndRad);
+
+  svg += `
+    <!-- 角1扇形填充 -->
+    <path d="M ${cx} ${cy} L ${x1Start} ${y1Start} A ${r} ${r} 0 0 0 ${x1End} ${y1End} Z" fill="#ffb703" opacity="0.85"/>
+    <!-- 角1外缘圆弧描边 -->
+    <path d="M ${x1Start} A ${r} ${r} 0 0 0 ${x1End}" fill="none" stroke="#f4a261" stroke-width="2.5"/>
+    <!-- 角1边界线 -->
+    <line x1="${cx}" y1="${cy}" x2="${x1Start}" y2="${y1Start}" stroke="#d62828" stroke-width="2"/>
+    <line x1="${cx}" y1="${cy}" x2="${x1End}" y2="${y1End}" stroke="#d62828" stroke-width="2"/>
+  `;
+
+  // ===== 角2（左侧，蓝色 N 份）=====
+  // 从 180°（向左）开始，逆时针向上每份 a1°
+  let currentAngle = 180;
+
+  for (let i = 0; i < N; i++) {
+    const startRad = currentAngle * Math.PI / 180;
+    const endAngle = currentAngle - a1;
+    const endRad = endAngle * Math.PI / 180;
+
+    const xStart = cx + r * Math.cos(startRad);
+    const yStart = cy - r * Math.sin(startRad);
+    const xEnd = cx + r * Math.cos(endRad);
+    const yEnd = cy - r * Math.sin(endRad);
+
+    const largeArc = a1 > 180 ? 1 : 0;
+
+    // 从 startAngle → endAngle（角度减小），sweep-flag=1 顺时针画弧
+    svg += `
+      <!-- 第${i+1}份扇形填充 -->
+      <path d="M ${cx} ${cy} L ${xStart} ${yStart} A ${r} ${r} 0 ${largeArc} 1 ${xEnd} ${yEnd} Z" fill="#219ebc" opacity="0.55"/>
+      <!-- 虚线分隔 -->
+      <line x1="${cx}" y1="${cy}" x2="${xStart}" y2="${yStart}" stroke="#023047" stroke-width="2" stroke-dasharray="5,4"/>
+    `;
+
+    currentAngle = endAngle;
+  }
+
+  // 角2最后一条边界线
+  const lastRad = (180 - a1 * N) * Math.PI / 180;
+  const xLast = cx + r * Math.cos(lastRad);
+  const yLast = cy - r * Math.sin(lastRad);
+  svg += `<line x1="${cx}" y1="${cy}" x2="${xLast}" y2="${yLast}" stroke="#023047" stroke-width="2"/>`;
+
+  // 角2外缘圆弧描边（从180°到180-N*a1°）
+  const arcStartX = cx - r;
+  const arcStartY = cy;
+  svg += `<path d="M ${arcStartX} ${arcStartY} A ${r} ${r} 0 0 1 ${xLast} ${yLast}" fill="none" stroke="#023047" stroke-width="2.5" opacity="0.7"/>`;
+
+  // ===== 标注 =====
+  svg += `
+    <text x="${cx + 25}" y="${cy - 25}" font-size="16" fill="#d62828" font-weight="bold">∠1 = 1份</text>
+    <text x="${cx - 110}" y="${cy - 25}" font-size="16" fill="#023047" font-weight="bold">∠2 = ${N}份</text>
+    <text x="${cx - 12}" y="${cy + 25}" font-size="13" fill="#666">顶点</text>
+  `;
+
+  svg += `</svg>`;
+  document.getElementById("svgBox").innerHTML = svg;
+}
+
+calc();
+</script>
+
+</body>
+</html>

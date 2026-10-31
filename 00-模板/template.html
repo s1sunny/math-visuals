@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<!--@visual
+title: 模板（请修改）
+topic: 角
+grade: 小学
+child: 
+keywords: 模板
+created: 2026-10-31
+-->
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>模板 · 数学图示</title>
+<style>
+  * { box-sizing: border-box; }
+  body {
+    font-family: "微软雅黑", "PingFang SC", sans-serif;
+    background: #f4faff;
+    margin: 0;
+    padding: 20px;
+    color: #333;
+    text-align: center;
+  }
+  h1 { color: #1d3557; margin: 0 0 4px; font-size: 30px; }
+  .subtitle { color: #777; font-size: 15px; margin-bottom: 18px; }
+  .panel {
+    display: flex;
+    justify-content: center;
+    gap: 24px;
+    flex-wrap: wrap;
+    align-items: flex-start;
+  }
+  .card {
+    background: #fff;
+    border-radius: 16px;
+    padding: 20px;
+    box-shadow: 0 4px 12px rgba(0,0,0,.1);
+    max-width: 560px;
+    width: 100%;
+  }
+  .card h3 { color: #1d3557; margin-top: 0; }
+  .stage { width: 100%; }
+  .stage svg, .stage canvas { width: 100%; height: auto; display: block; }
+  .controls { margin-top: 16px; font-size: 18px; }
+  .controls label { font-weight: bold; }
+  .controls input[type=range] { width: 220px; vertical-align: middle; }
+  .controls input[type=number] {
+    width: 70px; font-size: 18px; text-align: center;
+    border: 2px solid #457b9d; border-radius: 8px; padding: 4px;
+  }
+  button {
+    background: #1d3557; color: #fff; border: none;
+    padding: 8px 18px; border-radius: 8px; font-size: 16px;
+    cursor: pointer; margin: 8px 4px 0;
+  }
+  .result {
+    margin-top: 15px; font-size: 20px;
+    background: #d8f3dc; padding: 12px; border-radius: 10px;
+  }
+  .big { font-size: 28px; font-weight: bold; color: #e63946; }
+  .step { font-size: 18px; line-height: 1.9; text-align: left; }
+  @media (max-width: 640px) { h1 { font-size: 24px; } }
+</style>
+</head>
+<body>
+
+<h1>📐 模板标题</h1>
+<div class="subtitle">副标题 / 一句话说明</div>
+
+<div class="panel">
+  <!-- 左：图形 + 控制 -->
+  <div class="card">
+    <div class="stage" id="stage"><!-- 这里是图形（内联 SVG 或 canvas） --></div>
+
+    <div class="controls">
+      <label>参数：</label>
+      <input id="param" type="number" value="4" min="1" max="10" oninput="render()">
+      <button onclick="render()">▶ 重新计算</button>
+    </div>
+
+    <div class="result" id="out"></div>
+  </div>
+
+  <!-- 右：解题思路 -->
+  <div class="card">
+    <h3>🧠 解题思路</h3>
+    <div class="step" id="steps"></div>
+  </div>
+</div>
+
+<script>
+// ====== 逻辑区：改这里 ======
+function render() {
+  const N = parseInt(document.getElementById("param").value) || 1;
+
+  // 1) 计算
+  // 2) 画图（拼 svg 字符串写进 #stage）
+  // 3) 输出结果与步骤
+  document.getElementById("out").innerHTML = `示例输出：N = <span class="big">${N}</span>`;
+  document.getElementById("steps").innerHTML = `① 第一步<br>② 第二步`;
+}
+
+render();
+</script>
+
+</body>
+</html>

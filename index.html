@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>数学图示 · 导航</title>
+<style>
+  * { box-sizing: border-box; }
+  body { font-family: "微软雅黑","PingFang SC",sans-serif; margin:0; padding:24px;
+         background:#f4faff; color:#333; }
+  header { text-align:center; margin-bottom:8px; }
+  h1 { color:#1d3557; margin:0 0 6px; }
+  .lead { color:#777; font-size:15px; }
+  #q { display:block; margin:18px auto 8px; width:min(560px,90%);
+        padding:12px 16px; font-size:17px; border:2px solid #457b9d;
+        border-radius:12px; outline:none; }
+  .topic { color:#1d3557; border-left:6px solid #ffb703; padding-left:10px;
+            margin:26px 4px 10px; font-size:20px; }
+  .count { font-size:13px; color:#888; margin-left:8px; }
+  .grid { display:grid; gap:14px;
+           grid-template-columns:repeat(auto-fill,minmax(240px,1fr)); }
+  .card { display:block; text-decoration:none; color:inherit; background:#fff;
+           border-radius:14px; padding:16px; box-shadow:0 3px 10px rgba(0,0,0,.08);
+           transition:transform .12s, box-shadow .12s; }
+  .card:hover { transform:translateY(-3px); box-shadow:0 8px 20px rgba(29,53,87,.18); }
+  .card .t { font-size:17px; font-weight:bold; color:#1d3557; margin-bottom:6px; }
+  .card .m { font-size:13px; color:#e07a00; margin-bottom:6px; min-height:18px; }
+  .card .k { font-size:13px; color:#888; }
+  .empty { text-align:center; color:#999; padding:40px; }
+  footer { text-align:center; color:#aaa; font-size:12px; margin-top:30px; }
+</style>
+</head>
+<body>
+<header>
+  <h1>📐 数学图示</h1>
+  <div class="lead">孩子的动态交互图示集合 · 共 2 个</div>
+</header>
+<input id="q" type="search" placeholder="🔍 搜索：角 / 函数 / 关键词…" oninput="filter(this.value)">
+<main id="list">
+  <h2 class="topic">角<span class="count">2</span></h2>
+  <div class="grid">
+    <a class="card" href="01-角/ningmeng-angle-a-b-180-360.html" data-s="角度的计算：180° 和 360° 角 角度,180度,360度,平角,周角 柠檬">
+      <div class="t">角度的计算：180° 和 360°</div>
+      <div class="m">小学四年级 · 👦 柠檬</div>
+      <div class="k">角度,180度,360度,平角,周角</div>
+    </a>
+    <a class="card" href="01-角/ningmeng-angle-multiples.html" data-s="角的倍数关系 角 平角,倍数,角,180度 柠檬">
+      <div class="t">角的倍数关系</div>
+      <div class="m">小学四年级 · 👦 柠檬</div>
+      <div class="k">平角,倍数,角,180度</div>
+    </a>
+  </div>
+  <div class="empty" id="empty" style="display:none">没有匹配的图示</div>
+</main>
+<footer>生成于 2026-10-31 · 运行 tools/build_index.py 重建</footer>
+<script>
+function filter(v) {
+  v = (v || "").trim().toLowerCase();
+  var shown = 0;
+  document.querySelectorAll(".card").forEach(function(c) {
+    var hit = !v || c.getAttribute("data-s").toLowerCase().indexOf(v) >= 0;
+    c.style.display = hit ? "" : "none";
+    if (hit) shown++;
+  });
+  document.querySelectorAll(".topic").forEach(function(h) {
+    var g = h.nextElementSibling, any = false;
+    g.querySelectorAll(".card").forEach(function(c) {
+      if (c.style.display !== "none") any = true;
+    });
+    h.style.display = any ? "" : "none";
+    g.style.display = any ? "" : "none";
+  });
+  document.getElementById("empty").style.display = shown ? "none" : "block";
+}
+</script>
+</body>
+</html>

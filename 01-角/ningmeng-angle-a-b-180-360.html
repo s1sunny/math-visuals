@@ -1,0 +1,616 @@
+<!DOCTYPE html>
+<!--@visual
+title: 角度的计算：180° 和 360°
+topic: 角
+grade: 小学四年级
+child: 柠檬
+keywords: 角度,180度,360度,平角,周角
+created: 2026-10-31
+-->
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <title>认识角——互动学习</title>
+    <style>
+        * { box-sizing: border-box; }
+        body {
+            font-family: "微软雅黑", "Comic Sans MS", sans-serif;
+            text-align: center;
+            background: linear-gradient(135deg, #e0f7fa, #fff9c4);
+            margin: 0;
+            padding: 20px;
+            min-height: 100vh;
+        }
+        h1 { color: #333; font-size: 32px; margin-bottom: 5px; }
+        .subtitle { color: #777; font-size: 16px; margin-bottom: 20px; }
+
+        /* 画布容器 */
+        .canvas-wrap {
+            display: inline-block;
+            padding: 15px;
+            background: #fff;
+            border-radius: 20px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+        }
+        canvas {
+            display: block;
+            background: #fefefe;
+            border: 2px solid #ddd;
+        }
+
+        /* 模式选择 */
+        .mode-box {
+            margin: 20px 0 10px;
+            font-size: 18px;
+        }
+        .mode-box label {
+            cursor: pointer;
+            padding: 8px 20px;
+            border-radius: 20px;
+            background: #fff;
+            display: inline-block;
+            margin: 0 5px;
+            box-shadow: 0 2px 6px rgba(0,0,0,0.08);
+            transition: all 0.2s;
+        }
+        .mode-box label:hover { transform: scale(1.05); }
+        .mode-box input[type="radio"] { width: 18px; height: 18px; vertical-align: middle; }
+        .mode-box input[type="radio"]:checked + span {
+            font-weight: bold;
+            color: #e74c3c;
+        }
+
+        /* 滑块区（只放滑块） */
+        .slider-box {
+            margin-top: 25px;
+        }
+        input[type="range"] {
+            width: 380px;
+            height: 10px;
+            cursor: pointer;
+        }
+        .slider-hint {
+            font-size: 15px;
+            color: #999;
+            margin-top: 6px;
+        }
+
+        /* 数值显示区：角A可编辑 + 角B自动计算，并排 */
+        .values {
+            margin-top: 22px;
+            display: flex;
+            justify-content: center;
+            gap: 40px;
+            flex-wrap: wrap;
+        }
+        .val-card {
+            background: #fff;
+            border-radius: 16px;
+            padding: 14px 28px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.08);
+            min-width: 200px;
+        }
+        .val-card .v-label {
+            font-size: 16px;
+            color: #888;
+            margin-bottom: 6px;
+        }
+        .val-row {
+            font-size: 26px;
+            font-weight: bold;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+        .val-row.a { color: #e74c3c; }
+        .val-row.b { color: #2980ef; }
+
+        input[type="number"] {
+            font-size: 26px;
+            width: 85px;
+            padding: 4px 8px;
+            border: 3px solid #e74c3c;
+            border-radius: 10px;
+            text-align: center;
+            font-family: "微软雅黑", sans-serif;
+            color: #e74c3c;
+            font-weight: bold;
+            outline: none;
+            background: #fff9f8;
+            transition: border-color 0.2s;
+        }
+        input[type="number"]:focus { border-color: #c0392b; background: #fff; }
+        input[type="number"]:invalid { border-color: #f39c12; }
+        .val-row.b .bVal {
+            font-size: 26px;
+            font-weight: bold;
+            color: #2980ef;
+            min-width: 60px;
+            padding: 4px 8px;
+            background: #f4f8ff;
+            border: 3px solid #d6e4fb;
+            border-radius: 10px;
+        }
+        .degree-symbol { font-size: 22px; font-weight: bold; }
+        .val-row.a .degree-symbol { color: #e74c3c; }
+        .val-row.b .degree-symbol { color: #2980ef; }
+
+        .angleA { color: #e74c3c; font-weight: bold; }
+        .angleB { color: #2980ef; font-weight: bold; }
+
+        /* 图例 */
+        .legend {
+            display: flex;
+            justify-content: center;
+            gap: 30px;
+            margin-top: 15px;
+            font-size: 18px;
+        }
+
+        /* 提示 */
+        .tip {
+            margin-top: 20px;
+            font-size: 18px;
+            color: #555;
+            background: #fff;
+            display: inline-block;
+            padding: 10px 25px;
+            border-radius: 20px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+            max-width: 600px;
+            line-height: 1.6;
+        }
+
+        /* 错误提示 */
+        .error {
+            color: #e74c3c;
+            font-size: 16px;
+            margin-top: 8px;
+            min-height: 22px;
+        }
+    </style>
+</head>
+<body>
+
+<h1>🔺 认识角：角 A 和角 B 🔺</h1>
+<div class="subtitle" id="subtitle">拖动滑块或输入数值改变红色角（∠A）的大小，蓝色角（∠B）会自动计算</div>
+
+<div class="canvas-wrap">
+    <canvas id="canvas" width="400" height="320"></canvas>
+</div>
+
+<div class="legend">
+    <span class="angleA">🔴 角 A（红色）</span>
+    <span class="angleB">🔵 角 B（蓝色）</span>
+</div>
+
+<!-- 模式选择 -->
+<div class="mode-box">
+    <label>
+        <input type="radio" name="mode" value="180" checked>
+        <span>📏 180°（平角）</span>
+    </label>
+    <label>
+        <input type="radio" name="mode" value="360">
+        <span>🥧 360°（周角）</span>
+    </label>
+</div>
+
+<!-- 滑块区 -->
+<div class="slider-box">
+    <input type="range" id="angleASlider" min="0" max="180" value="90">
+    <div class="slider-hint">👆 拖动滑块改变角 A 的大小</div>
+</div>
+
+<!-- 数值区：角A可填，角B自动计算 -->
+<div class="values">
+    <div class="val-card">
+        <div class="v-label">✏️ 角 A（可修改）</div>
+        <div class="val-row a">
+            <input type="number" id="angleAInput" min="0" max="180" value="90" step="1">
+            <span class="degree-symbol">°</span>
+        </div>
+    </div>
+    <div class="val-card">
+        <div class="v-label">🔵 角 B（自动计算）</div>
+        <div class="val-row b">
+            <span class="bVal" id="bVal">90</span>
+            <span class="degree-symbol">°</span>
+        </div>
+    </div>
+</div>
+<div class="error" id="error"></div>
+
+<div class="tip" id="tip"></div>
+
+<script>
+    const canvas = document.getElementById("canvas");
+    const ctx = canvas.getContext("2d");
+    const slider = document.getElementById("angleASlider");
+    const input = document.getElementById("angleAInput");
+    const bVal = document.getElementById("bVal");
+    const tip = document.getElementById("tip");
+    const errorDiv = document.getElementById("error");
+    const subtitle = document.getElementById("subtitle");
+    const radios = document.getElementsByName("mode");
+
+    const centerX = 200;
+    const centerY = 160;
+    const radius = 120;
+
+    // ---- 工具函数 ----
+    function getMode() {
+        for (let r of radios) {
+            if (r.checked) return parseInt(r.value);
+        }
+        return 180;
+    }
+
+    function angleType(deg) {
+        if (deg === 0) return "零角";
+        if (deg < 90) return "锐角";
+        if (deg === 90) return "直角";
+        if (deg < 180) return "钝角";
+        if (deg === 180) return "平角";
+        if (deg < 360) return "优角";
+        return "周角";
+    }
+
+    function updateLimits() {
+        const mode = getMode();
+        const max = mode;
+        input.max = max;
+        slider.max = max;
+        subtitle.textContent = mode === 180
+            ? "基准线为水平线，角 A + 角 B = 180°（平角），两个角拼成一条直线"
+            : "两个角拼成一个完整的圆，角 A + 角 B = 360°（周角）";
+    }
+
+    // ---- 核心绘制 ----
+    function draw(angleA) {
+        const mode = getMode();
+        const angleB = mode - angleA;
+
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+        if (mode === 180) {
+            draw180(angleA, angleB);
+        } else {
+            draw360(angleA, angleB);
+        }
+
+        // 更新文字
+        if (document.activeElement !== input) {
+            input.value = angleA;
+        }
+        bVal.textContent = angleB;
+
+        // 提示文字
+        if (angleA === 0) {
+            tip.innerHTML = `角 A 是 0°，全部都是 <b>角 B（${angleB}°）</b>！`;
+        } else if (angleB === 0) {
+            tip.innerHTML = `角 B 是 0°，全部都是 <b>角 A（${angleA}°）</b>！`;
+        } else {
+            tip.innerHTML = `
+                角 A 是 <b>${angleType(angleA)}</b>（${angleA}°），
+                角 B 是 <b>${angleType(angleB)}</b>（${angleB}°），
+                两个角加起来 = <b>${mode}°</b>
+            `;
+        }
+    }
+
+    // 180° 模式：十字坐标系，角 A、角 B 都站在水平线上方
+    // 角 A（红）从竖直分界线往右展开，角 B（蓝）从竖直分界线往左展开
+    function draw180(angleA, angleB) {
+        const AX = centerX;              // 圆心 / 角的顶点
+        const AY = centerY + radius;     // 水平基准线所在高度（圆心在半圆底边）
+        const top = centerY;             // 半圆顶部
+
+        // 外半圆轮廓（上半平面）
+        ctx.beginPath();
+        ctx.arc(AX, AY, radius, Math.PI, 0, false);
+        ctx.strokeStyle = "#ddd";
+        ctx.lineWidth = 1;
+        ctx.stroke();
+
+        // 水平基准线（带右向箭头）
+        ctx.beginPath();
+        ctx.moveTo(AX - radius - 30, AY);
+        ctx.lineTo(AX + radius + 30, AY);
+        ctx.strokeStyle = "#555";
+        ctx.lineWidth = 1.5;
+        ctx.stroke();
+        drawArrow(ctx, AX + radius + 30, AY, AX + radius + 45, AY);
+
+        // 竖直分界线（带向上箭头）—— 即 90° 参考线
+        ctx.beginPath();
+        ctx.moveTo(AX, AY + 15);
+        ctx.lineTo(AX, top - 12);
+        ctx.strokeStyle = "#555";
+        ctx.lineWidth = 1.5;
+        ctx.stroke();
+        drawArrow(ctx, AX, top - 12, AX, top - 27);
+
+        // 用"顶点 + 沿半圆弧逐点连线"的方式填充扇形，精确控制弧线不越过水平线。
+        // 弧线采样点从角度 a 沿递增方向走到 b（每步 1°），全部落在 [-180°, 0°]。
+        function fillSector(a, b, color, stroke) {
+            // 角度相同时不画（避免 0° 或 180° 时的退化扇形）
+            if (Math.abs(a - b) < 1e-9 || Math.abs(a - b - 2 * Math.PI) < 1e-9) return;
+            ctx.beginPath();
+            ctx.moveTo(AX, AY);
+            const step = Math.PI / 180;
+            let t = a;
+            // 沿角度递增方向采样，自动处理跨 -180° 环绕
+            const target = b > a ? b : b + 2 * Math.PI;
+            while (t <= target + 1e-9) {
+                let tt = t;
+                if (tt > Math.PI) tt -= 2 * Math.PI;
+                ctx.lineTo(AX + radius * Math.cos(tt), AY + radius * Math.sin(tt));
+                t += step;
+            }
+            ctx.closePath();
+            ctx.fillStyle = color;
+            ctx.fill();
+            ctx.strokeStyle = stroke;
+            ctx.lineWidth = 2.5;
+            ctx.stroke();
+        }
+
+        // 角 A 的终边角度（从 9 点方向 -180° 沿上半圆递增到 0°）
+        const aEnd = -Math.PI + angleA * Math.PI / 180;
+        // 角 B 的终边角度（从 3 点方向 0° 沿上半圆递减到 -180°）
+        const bEnd = -angleB * Math.PI / 180;
+
+        // 角 A（红色）：从水平线左端(-180°)沿上半圆走到终边 aEnd
+        if (angleA > 0) {
+            fillSector(-Math.PI, aEnd, "rgba(231, 76, 60, 0.45)", "#e74c3c");
+            // 角 A 的终边（红色射线）
+            if (angleA < 180) {
+                ctx.beginPath();
+                ctx.moveTo(AX, AY);
+                ctx.lineTo(AX + radius * Math.cos(aEnd), AY + radius * Math.sin(aEnd));
+                ctx.strokeStyle = "#c0392b";
+                ctx.lineWidth = 2.5;
+                ctx.stroke();
+            }
+            drawAngleArc(-Math.PI, aEnd, "#e74c3c");
+        }
+
+        // 角 B（蓝色）：从水平线右端(0°)沿上半圆反向走到终边 bEnd
+        if (angleB > 0) {
+            fillSector(bEnd, 0, "rgba(41, 128, 239, 0.45)", "#2980ef");
+            // 角 B 的终边（蓝色射线，与 A 的终边重合）
+            if (angleB < 180) {
+                ctx.beginPath();
+                ctx.moveTo(AX, AY);
+                ctx.lineTo(AX + radius * Math.cos(bEnd), AY + radius * Math.sin(bEnd));
+                ctx.strokeStyle = "#1f5faa";
+                ctx.lineWidth = 2.5;
+                ctx.stroke();
+            }
+            drawAngleArc(bEnd, 0, "#2980ef");
+        }
+
+        // 顶点
+        ctx.beginPath();
+        ctx.arc(AX, AY, 5, 0, 2 * Math.PI);
+        ctx.fillStyle = "#333";
+        ctx.fill();
+
+        // 角 A 标签（红色，左半扇形内部）
+        if (angleA > 0) {
+            const aMid = (-Math.PI + aEnd) / 2;
+            ctx.fillStyle = "#c0392b";
+            ctx.font = "bold 20px 微软雅黑";
+            ctx.textAlign = "center";
+            ctx.fillText("A", AX + radius * 0.55 * Math.cos(aMid), AY + radius * 0.55 * Math.sin(aMid) + 7);
+        }
+
+        // 角 B 标签（蓝色，右半扇形内部）
+        if (angleB > 0) {
+            const bMid = (bEnd + 0) / 2;
+            ctx.fillStyle = "#1f5faa";
+            ctx.font = "bold 20px 微软雅黑";
+            ctx.textAlign = "center";
+            ctx.fillText("B", AX + radius * 0.55 * Math.cos(bMid), AY + radius * 0.55 * Math.sin(bMid) + 7);
+        }
+    }
+
+    // 在顶点处画一小段角弧（半径小，沿与扇形相同的方向）
+    function drawAngleArc(s, e, color) {
+        ctx.beginPath();
+        const r = radius * 0.18;
+        const step = Math.PI / 180;
+        let t = s;
+        const target = e > s ? e : e + 2 * Math.PI;
+        t += step; // 起点不重复
+        let first = true;
+        while (t <= target - 1e-9) {
+            let tt = t;
+            if (tt > Math.PI) tt -= 2 * Math.PI;
+            const x = centerX + r * Math.cos(tt);
+            const y = centerY + radius + r * Math.sin(tt);
+            if (first) { ctx.moveTo(x, y); first = false; }
+            else ctx.lineTo(x, y);
+            t += step;
+        }
+        if (!first) {
+            ctx.strokeStyle = color;
+            ctx.lineWidth = 1.8;
+            ctx.stroke();
+        }
+    }
+
+    // 画箭头（末端为 (x2,y2)）
+    function drawArrow(ctx, x1, y1, x2, y2) {
+        const head = 9, angle = Math.atan2(y2 - y1, x2 - x1);
+        ctx.beginPath();
+        ctx.moveTo(x1, y1);
+        ctx.lineTo(x2, y2);
+        ctx.strokeStyle = "#555";
+        ctx.lineWidth = 1.5;
+        ctx.stroke();
+        ctx.beginPath();
+        ctx.moveTo(x2, y2);
+        ctx.lineTo(x2 - head * Math.cos(angle - Math.PI / 6), y2 - head * Math.sin(angle - Math.PI / 6));
+        ctx.lineTo(x2 - head * Math.cos(angle + Math.PI / 6), y2 - head * Math.sin(angle + Math.PI / 6));
+        ctx.closePath();
+        ctx.fillStyle = "#555";
+        ctx.fill();
+    }
+
+    // 360° 模式：完整饼图
+    function draw360(angleA, angleB) {
+        const startRad = -Math.PI / 2; // 12 点钟方向
+        const endRad = startRad + angleA * Math.PI / 180;
+
+        // 角 A 扇形（红色）
+        ctx.beginPath();
+        ctx.moveTo(centerX, centerY);
+        ctx.arc(centerX, centerY, radius, startRad, endRad, false);
+        ctx.closePath();
+        ctx.fillStyle = "rgba(231, 76, 60, 0.5)";
+        ctx.fill();
+        ctx.strokeStyle = "#e74c3c";
+        ctx.lineWidth = 2.5;
+        ctx.stroke();
+
+        // 角 B 扇形（蓝色）
+        if (angleB > 0) {
+            ctx.beginPath();
+            ctx.moveTo(centerX, centerY);
+            ctx.arc(centerX, centerY, radius, endRad, startRad + 2 * Math.PI, false);
+            ctx.closePath();
+            ctx.fillStyle = "rgba(41, 128, 239, 0.5)";
+            ctx.fill();
+            ctx.strokeStyle = "#2980ef";
+            ctx.lineWidth = 2.5;
+            ctx.stroke();
+        }
+
+        // 外圆
+        ctx.beginPath();
+        ctx.arc(centerX, centerY, radius, 0, 2 * Math.PI);
+        ctx.strokeStyle = "#999";
+        ctx.lineWidth = 2;
+        ctx.stroke();
+
+        // 起始边（12点方向）
+        ctx.beginPath();
+        ctx.moveTo(centerX, centerY);
+        ctx.lineTo(centerX, centerY - radius);
+        ctx.strokeStyle = "#333";
+        ctx.lineWidth = 2;
+        ctx.stroke();
+
+        // 终边
+        const x2 = centerX + radius * Math.cos(endRad);
+        const y2 = centerY + radius * Math.sin(endRad);
+        ctx.beginPath();
+        ctx.moveTo(centerX, centerY);
+        ctx.lineTo(x2, y2);
+        ctx.strokeStyle = "#333";
+        ctx.lineWidth = 2;
+        ctx.stroke();
+
+        // 中心点
+        ctx.beginPath();
+        ctx.arc(centerX, centerY, 5, 0, 2 * Math.PI);
+        ctx.fillStyle = "#333";
+        ctx.fill();
+
+        // 角 A 标签
+        const midA = startRad + (endRad - startRad) / 2;
+        const laX = centerX + radius * 0.55 * Math.cos(midA);
+        const laY = centerY + radius * 0.55 * Math.sin(midA);
+        ctx.fillStyle = "#c0392b";
+        ctx.font = "bold 22px 微软雅黑";
+        ctx.textAlign = "center";
+        ctx.fillText("A", laX, laY + 8);
+
+        // 角 B 标签
+        if (angleB > 0) {
+            const midB = endRad + (startRad + 2 * Math.PI - endRad) / 2;
+            const lbX = centerX + radius * 0.55 * Math.cos(midB);
+            const lbY = centerY + radius * 0.55 * Math.sin(midB);
+            ctx.fillStyle = "#1f5faa";
+            ctx.font = "bold 22px 微软雅黑";
+            ctx.textAlign = "center";
+            ctx.fillText("B", lbX, lbY + 8);
+        }
+    }
+
+    // ---- 事件处理 ----
+    function setAngle(value) {
+        const mode = getMode();
+        const max = mode;
+        let angle = parseInt(value);
+
+        if (isNaN(angle)) {
+            errorDiv.textContent = "⚠️ 请输入一个有效的数字";
+            return;
+        }
+        if (angle < 0) {
+            angle = 0;
+            errorDiv.textContent = "⚠️ 角度不能小于 0°，已自动调整为 0°";
+        } else if (angle > max) {
+            angle = max;
+            errorDiv.textContent = `⚠️ ${mode}° 模式下最大只能输入 ${max}°，已自动调整`;
+        } else {
+            errorDiv.textContent = "";
+        }
+
+        // 同步滑块
+        slider.value = angle;
+
+        draw(angle);
+    }
+
+    // 输入框事件
+    input.addEventListener("input", function () {
+        if (this.value === "") {
+            errorDiv.textContent = "";
+            return;
+        }
+        setAngle(this.value);
+    });
+
+    input.addEventListener("blur", function () {
+        if (this.value === "" || isNaN(parseInt(this.value))) {
+            this.value = 90;
+        }
+        setAngle(this.value);
+    });
+
+    // 滑块事件
+    slider.addEventListener("input", function () {
+        errorDiv.textContent = "";
+        draw(parseInt(this.value));
+    });
+
+    // 模式切换
+    for (let r of radios) {
+        r.addEventListener("change", function () {
+            updateLimits();
+            const current = parseInt(input.value) || 0;
+            const max = getMode();
+            if (current > max) {
+                input.value = max;
+                slider.value = max;
+            } else if (isNaN(current)) {
+                input.value = 60;
+                slider.value = 90;
+            }
+            setAngle(input.value);
+        });
+    }
+
+    // 初始化
+    updateLimits();
+    input.value = 90;
+    draw(90);
+</script>
+
+</body>
+</html>
